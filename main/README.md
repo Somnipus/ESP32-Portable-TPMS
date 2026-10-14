@@ -1,4 +1,4 @@
-# ESP32 Tire Pressure Monitoring System (TPMS) 
+# ESP32 PTPMS - Portable Tire Pressure Monitoring System
 *Aferidor de Pressão para Pneus Portátil*
 
 [![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.4.3-red.svg)](https://docs.espressif.com/projects/esp-idf/en/v5.4.3/esp32/)
