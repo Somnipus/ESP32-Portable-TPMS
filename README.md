@@ -1,67 +1,67 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+# ESP32 PTPMS - Portable Tire Pressure Monitoring System
+*Aferidor de Pressão para Pneus Portátil*
 
-# I2C OLED example
+[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.4.3-red.svg)](https://docs.espressif.com/projects/esp-idf/en/v5.4.3/esp32/)
+[![LVGL](https://img.shields.io/badge/LVGL-8.x-blue.svg)](https://lvgl.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-[esp_lcd](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/lcd.html) supports I2C interfaced OLED LCD, whose color depth is usually 1bpp.
+🇺🇸 **[English Version](#english-version)** | 🇧🇷 **[Versão em Português](#versão-em-português)**
 
-This example shows how to make use of the SSD1306 panel driver from `esp_lcd` component to facilitate the porting of LVGL library. In the end, example will display a scrolling text on the OLED screen. For more information about porting the LVGL library, you can also refer to another [lvgl porting example](../i80_controller/README.md).
+---
 
-## How to use the example
+## 🇺🇸 English Version
 
-### Hardware Required
+### About the Project
+This project is a portable Tire Pressure Monitoring System (PTPMS) developed as the final project for the "Projeto Integrador II" course in the Embedded Systems gradutaion program at FATEC Jundiaí. It reads real-time pressure data from a hydrostatic sensor, converts it to readable units (PSI and BAR), and displays the information on an integrated OLED screen with a rich graphical interface. 
 
-* An ESP development board
-* An SSD1306 OLED LCD, with I2C interface
-* An USB cable for power supply and programming
+Designed with IoT and portability in mind, the system is powered by an onboard 18650 Li-Ion battery, making it a fully autonomous handheld device. It also features auditory and visual alarms to notify the user if the tire pressure is above or below safe limits (28 to 36 PSI).
 
-### Hardware Connection
+### Hardware Specifications
+*   **Microcontroller:** ESP32 with Integrated OLED and 18650 Battery Shield
+    *   **CPU:** Xtensa® Dual-Core 32-bit LX6 @ 240 MHz
+    *   **Memory:** 4 MB Flash | 520 KB RAM | 448 KB ROM
+    *   **Connectivity:** Wi-Fi 802.11 b/g/n (2.4GHz) & Bluetooth Low Energy (BLE) 4.2
+    *   **I/O:** 11 Digital GPIOs (all supporting up to 16-bit PWM)
+*   **Display:** Integrated 0.96" OLED
+*   **Power System:** Integrated 18650 Li-Ion battery holder with USB charging circuit.
+*   **Pressure Sensor:** SMP3011 (I2C Hydrostatic Sensor)
+*   **Actuators/Inputs:** Piezo Buzzer for alarms and a Push-button for unit toggling.
 
-The connection between ESP Board and the LCD is as follows:
+### Software Stack
+*   **Framework:** ESP-IDF v5.4.3 (C/C++)
+*   **Graphics Engine:** LVGL (Light and Versatile Graphics Library) - utilized for rendering text, numbers, dynamic arrows, and shapes.
+*   **Architecture:** Modularized C code, utilizing FreeRTOS tasks and hardware interrupts (ISR) for debounce control.
 
-```text
-      ESP Board                       OLED LCD (I2C)
-+------------------+              +-------------------+
-|               GND+--------------+GND                |
-|                  |              |                   |
-|               3V3+--------------+VCC                |
-|                  |              |                   |
-|               SDA+--------------+SDA                |
-|                  |              |                   |
-|               SCL+--------------+SCL                |
-+------------------+              +-------------------+
-```
+---
 
-The GPIO number used by this example can be changed in [lvgl_example_main.c](main/i2c_oled_example_main.c). Please pay attention to the I2C hardware device address as well, you should refer to your module's spec and schematic to determine that address.
+## 🇧🇷 Versão em Português
 
-### Build and Flash
+### Sobre o Projeto
+Este projeto é um Aferidor de Pressão  Portatil para Pneus (PTPMS), desenvolvido como requisito para aprovação na disciplina de Projeto Integrador II do cursoTecnólogo em Sistemas Embarcados da FATEC Jundiaí. O sistema lê dados em tempo real de um sensor hidrostático, converte para grandezas legíveis (PSI e BAR) e exibe as informações em uma tela OLED com interface gráfica dinâmica.
 
-Run `idf.py -p PORT build flash monitor` to build, flash and monitor the project. A scrolling text will show up on the LCD as expected.
+Projetado com foco em IoT e portabilidade, o circuito utiliza um sistema de alimentação autônomo baseado em uma bateria 18650, tornando-o um dispositivo móvel completo. O aparelho também conta com alertas visuais e sonoros para notificar o usuário caso a calibração esteja fora da faixa segura (28 a 36 PSI).
 
-The first time you run `idf.py` for the example will cost extra time as the build system needs to address the component dependencies and downloads the missing components from registry into `managed_components` folder.
+### Especificações de Hardware
+*   **Microcontrolador:** Placa ESP32 com Display OLED e Suporte para Bateria 18650
+    *   **Processador:** Xtensa® Dual-Core 32-bit LX6 (Clock máximo: 240 MHz)
+    *   **Memória:** 4 MB Flash programável | 520 KBytes RAM | 448 KBytes ROM
+    *   **Conectividade:** Wireless 802.11 b/g/n (2.4GHz) e Bluetooth Low Energy 4.2 integrados
+    *   **I/O:** 11 Pinos Digitais GPIO (todos com PWM de resolução ajustável até 16 bits)
+*   **Display:** OLED integrado (utilizado para renderizar textos, números, formas e ícones)
+*   **Alimentação:** Sistema de alimentação e carregamento integrado via bateria Lítio-Ion 18650 e cabo USB.
+*   **Sensor de Pressão:** SMP3011 (Sensor Hidrostático via protocolo I2C)
+*   **Atuadores/Entradas:** Piezo Buzzer para alarmes sonoros e Botão físico para seleção de grandezas.
 
-(To exit the serial monitor, type ``Ctrl-]``.)
+### Tecnologias Utilizadas
+*   **Framework:** ESP-IDF v5.4.3 (C/C++)
+*   **Motor Gráfico:** LVGL (Light and Versatile Graphics Library)
+*   **Arquitetura:** Código modularizado em C, com o uso de tasks do FreeRTOS e interrupções de hardware (ISR) para controle de debounce.
 
-See the [Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html) for full steps to configure and use ESP-IDF to build projects.
+---
 
-### Example Output
+## 👥 Authors / Autores
+*   **Felipe Nascimento**
+*   **Gustavo Copette**
+*   **Iago de Oliveira**
 
-```bash
-...
-I (308) main_task: Started on CPU0
-I (318) main_task: Calling app_main()
-I (318) example: Initialize I2C bus
-I (318) gpio: GPIO[3]| InputEn: 1| OutputEn: 1| OpenDrain: 1| Pullup: 1| Pulldown: 0| Intr:0
-I (328) gpio: GPIO[4]| InputEn: 1| OutputEn: 1| OpenDrain: 1| Pullup: 1| Pulldown: 0| Intr:0
-I (338) example: Install panel IO
-I (338) example: Install SSD1306 panel driver
-I (448) example: Initialize LVGL
-I (448) LVGL: Starting LVGL task
-I (448) example: Display LVGL Scroll Text
-I (448) main_task: Returned from app_main()
-...
-```
-
-## Troubleshooting
-
-For any technical queries, please open an [issue](https://github.com/espressif/esp-idf/issues) on GitHub. We will get back to you soon.
+*Special thanks to TEX equipamentos eletrônicos for providing hardware subsidies and technical instruction during the development of this prototype.*
