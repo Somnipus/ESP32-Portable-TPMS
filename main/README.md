@@ -63,3 +63,5 @@ Projetado com foco em IoT e portabilidade, o circuito utiliza um sistema de alim
 *   **Felipe Nascimento**
 *   **Gustavo Copette**
 *   **Iago de Oliveira**
+
+*Special thanks to TEX equipamentos eletrônicos for providing hardware subsidies and technical instruction during the development of this prototype.*
