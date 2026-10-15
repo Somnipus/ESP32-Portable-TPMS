@@ -32,6 +32,10 @@ Designed with IoT and portability in mind, the system is powered by an onboard 1
 *   **Graphics Engine:** LVGL (Light and Versatile Graphics Library) - utilized for rendering text, numbers, dynamic arrows, and shapes.
 *   **Architecture:** Modularized C code, utilizing FreeRTOS tasks and hardware interrupts (ISR) for debounce control.
 
+### 📄 Full Documentation
+For an in-depth analysis of our methodology, sensor calculations, and circuit schematics, please refer to our official technical report:
+* [Technical Report - PTPMS (English)](docs/Technical_Report_PTPMS.pdf)
+
 ---
 
 ## 🇧🇷 Versão em Português
@@ -56,6 +60,10 @@ Projetado com foco em IoT e portabilidade, o circuito utiliza um sistema de alim
 *   **Framework:** ESP-IDF v5.4.3 (C/C++)
 *   **Motor Gráfico:** LVGL (Light and Versatile Graphics Library)
 *   **Arquitetura:** Código modularizado em C, com o uso de tasks do FreeRTOS e interrupções de hardware (ISR) para controle de debounce.
+
+### 📄 Documentação Completa
+Para uma análise aprofundada da nossa metodologia, cálculos do sensor e esquemas do circuito, consulte o nosso relatório técnico oficial:
+* [Relatório Técnico - PTPMS (Português)](docs/Relatorio_Tecnico_PTPMS.pdf)
 
 ---
 
