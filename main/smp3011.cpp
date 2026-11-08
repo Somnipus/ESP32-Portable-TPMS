@@ -13,6 +13,7 @@ static const char *TAG = "SMP3011";
 // Implementação do Construtor[cite: 19]
 SMP3011::SMP3011(i2c_master_bus_handle_t bus_handle) {
     this->offset_zero = 0.0f; // Inicializa a tara em zero
+    this->calibrado = false; // Temp, talvez tirar
 
     i2c_device_config_t dev_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7, // I2C usa 7 bits ao invés de 10
@@ -38,16 +39,33 @@ float SMP3011::ler_pressao_psi() {
     uint32_t bruta = ((uint32_t)buffer[1] << 16) | ((uint32_t)buffer[2] << 8) | buffer[3];
     float ppt = (float)bruta / 16777216.0f; 
     
+    ESP_LOGI(TAG,
+    "RAW: %lu | PPT: %.6f | OFFSET: %.6f",
+    (unsigned long)bruta,
+    ppt,
+    this->offset_zero
+    ); // TEMP DE DEBUG: Remover em produção
+
     // Tara automática (Captura valor em estado de repouso)
-    if (this->offset_zero == 0.0f) {
-        this->offset_zero = ppt; 
-    } 
+    if (!this->calibrado) {
+    this->offset_zero = ppt;
+    this->calibrado = true;
+    } // Temp, funciona bem, mas caso dê problemas, retornar para o anterior:
+    //if (this->offset_zero == 0.0f) {
+    //    this->offset_zero = ppt; 
+    //}
     
     float pressao_kpa = ((ppt - this->offset_zero) / 0.70f) * 500.0f; 
 
     if (pressao_kpa < 0.0f) {
         pressao_kpa = 0.0f;
     } // Filtro para evitar exibição de número negativo na tela
+
+    ESP_LOGI(TAG,
+    "PRESSAO KPA: %.2f | PRESSAO PSI: %.2f",
+    pressao_kpa,
+    pressao_kpa * 0.145038f
+    ); // TEMP DE DEBUG: Remover em produção
 
     return pressao_kpa * 0.145038f; // Converte o valor de KPA para PSI
 }

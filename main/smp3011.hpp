@@ -15,6 +15,7 @@ private:
     // Encapsulamento
     i2c_master_dev_handle_t smp3011_handle; 
     float offset_zero;
+    bool calibrado; // Temp, talvez tirar
 
 public:
     // Método Construtor
