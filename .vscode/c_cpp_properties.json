@@ -2,9 +2,9 @@
   "configurations": [
     {
       "name": "ESP-IDF",
-      "compilerPath": "C:\\Espressif\\tools\\xtensa-esp-elf\\esp-13.2.0_20250707\\xtensa-esp-elf\\bin\\xtensa-esp32-elf-gcc.exe",
-      "compileCommands": "c:\\Users\\fn747\\i2c_oled\\build\\compile_commands.json",
-      "intelliSenseMode": "gcc-x86",
+      "compilerPath": "F:\\esp\\tools\\tools\\xtensa-esp-elf\\esp-13.2.0_20250707\\xtensa-esp-elf\\bin\\xtensa-esp32-elf-gcc.exe",
+      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+      "intelliSenseMode": "gcc-x64",
       "includePath": [
         "${workspaceFolder}/**"
       ],

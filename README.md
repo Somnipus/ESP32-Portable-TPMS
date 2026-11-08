@@ -12,7 +12,7 @@
 ## 🇺🇸 English Version
 
 ### About the Project
-This project is a portable Tire Pressure Monitoring System (PTPMS) developed as the final project for the "Projeto Integrador II" course in the Embedded Systems gradutaion program at FATEC Jundiaí. It reads real-time pressure data from a hydrostatic sensor, converts it to readable units (PSI and BAR), and displays the information on an integrated OLED screen with a rich graphical interface. 
+This project is a portable Tire Pressure Monitoring System (PTPMS) developed as the final project for the "Projeto Integrador III" course in the Embedded Systems gradutaion program at FATEC Jundiaí. It reads real-time pressure data from a hydrostatic sensor, converts it to readable units (PSI and BAR), and displays the information on an integrated OLED screen with a rich graphical interface. 
 
 Designed with IoT and portability in mind, the system is powered by an onboard 18650 Li-Ion battery, making it a fully autonomous handheld device. It also features auditory and visual alarms to notify the user if the tire pressure is above or below safe limits (28 to 36 PSI).
 
@@ -41,7 +41,7 @@ For an in-depth analysis of our methodology, sensor calculations, and circuit sc
 ## 🇧🇷 Versão em Português
 
 ### Sobre o Projeto
-Este projeto é um Aferidor de Pressão  Portatil para Pneus (PTPMS), desenvolvido como requisito para aprovação na disciplina de Projeto Integrador II do cursoTecnólogo em Sistemas Embarcados da FATEC Jundiaí. O sistema lê dados em tempo real de um sensor hidrostático, converte para grandezas legíveis (PSI e BAR) e exibe as informações em uma tela OLED com interface gráfica dinâmica.
+Este projeto é um Aferidor de Pressão  Portatil para Pneus (PTPMS), desenvolvido como requisito para aprovação na disciplina de Projeto Integrador III do curso Tecnólogo em Sistemas Embarcados da FATEC Jundiaí. O sistema lê dados em tempo real de um sensor hidrostático, converte para grandezas legíveis (PSI e BAR) e exibe as informações em uma tela OLED com interface gráfica dinâmica.
 
 Projetado com foco em IoT e portabilidade, o circuito utiliza um sistema de alimentação autônomo baseado em uma bateria 18650, tornando-o um dispositivo móvel completo. O aparelho também conta com alertas visuais e sonoros para notificar o usuário caso a calibração esteja fora da faixa segura (28 a 36 PSI).
 
