@@ -19,19 +19,19 @@ DisplayOLED::DisplayOLED(i2c_master_bus_handle_t bus_handle) {
     esp_lcd_panel_io_handle_t io_handle = NULL; 
     esp_lcd_panel_io_i2c_config_t io_config = {
         .dev_addr = SSD1306_I2C_ADDR, 
-        .scl_speed_hz = I2C_CLOCK_SPEED_HZ, 
         .control_phase_bytes = 1, // 1 byte extra para indicar Data/Command
-        .lcd_cmd_bits = 8, 
-        .lcd_param_bits = 8, 
         .dc_bit_offset = 6, // Data-Command está na posição 6
+        .lcd_cmd_bits = 8,
+        .lcd_param_bits = 8,
+        .scl_speed_hz = I2C_CLOCK_SPEED_HZ, 
     }; // !! Todas as configurações são padrão. Não alterar !!
     
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &io_config, &io_handle));
 
     esp_lcd_panel_handle_t panel_handle = NULL; 
     esp_lcd_panel_dev_config_t panel_config = { 
-        .bits_per_pixel = 1, // Monocromático (apagado ou aceso)
         .reset_gpio_num = OLED_RST_PIN, 
+        .bits_per_pixel = 1, // Monocromático (apagado ou aceso)
     };
     
     esp_lcd_panel_ssd1306_config_t ssd1306_config = { 
