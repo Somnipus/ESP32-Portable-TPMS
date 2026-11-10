@@ -13,6 +13,7 @@
 // Módulos da aplicação
 #include "hardware.hpp"
 #include "smp3011.hpp"
+#include "bmp280.hpp"
 #include "display.hpp"
 
 #define I2C_PORT_NUM           0
@@ -24,20 +25,23 @@ static const char *TAG = "MAESTRO";
 // Instâncias dos Objetos
 Hardware* hw;
 SMP3011* sensor;
+BMP280* ambiente;
 DisplayOLED* display;
 
 // Mutex para proteger o barramento I2C
 SemaphoreHandle_t i2c_mutex;
 
-// Variável compartilhada entre as tasks
+// Variáveis compartilhada entre as tasks
 volatile float pressao_atual_psi = 0.0f;
+volatile float temperatura_atual_c = 0.0f;
 
 // ---------------- THREAD 1: LEITURA E ALARME ----------------
 void task_leitura_sensor(void *pvParameters) {
     while (1) {
-        // Solicita acesso exclusivo ao I2C
+        // Solicita acesso exclusivo ao I2C uma única vez por ciclo
         if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE) {
             pressao_atual_psi = sensor->ler_pressao_psi();
+            temperatura_atual_c = ambiente->ler_temperatura_celsius();
             xSemaphoreGive(i2c_mutex); // Libera o barramento
         }
         
@@ -88,6 +92,9 @@ extern "C" void app_main(void) {
     hw->inicializar();
     sensor = new SMP3011(i2c_bus_handle);
     display = new DisplayOLED(i2c_bus_handle);
+    // Instanciação e configuração do sensor de temperatura BMP280
+    ambiente = new BMP280(i2c_bus_handle);
+    ambiente->inicializar();
 
     // 4. Tarefas do FreeRTOS
     xTaskCreate(task_leitura_sensor, "TaskLeitura", 4096, NULL, 5, NULL);
