@@ -8,6 +8,7 @@
 
 #include "driver/i2c_master.h"
 #include "lvgl.h"
+#include "esp_lcd_io_spi.h"
 
 #define OLED_RST_PIN           GPIO_NUM_16
 #define I2C_CLOCK_SPEED_HZ     (400 * 1000) 
@@ -20,6 +21,11 @@
 #define PRESSAO_MAXIMA_PSI     36.0f 
 #define PSI_PARA_BAR_FATOR     0.0689476f
 
+esp_lcd_panel_handle_t lcd_init();
+void lcd_fill(esp_lcd_panel_handle_t panel, uint16_t color, uint16_t *buf);
+uint16_t *lcd_config();
+void lcd_draw_text(esp_lcd_panel_handle_t panel, int x, int y, const char *str,
+                          uint16_t fg, uint16_t bg, int scale);
 class DisplayOLED {
 private:
     // Ponteiros LVGL (presets)
@@ -33,14 +39,17 @@ private:
 
 public:
     // Construtor
-    DisplayOLED(i2c_master_bus_handle_t bus_handle);
+    //DisplayOLED(i2c_master_bus_handle_t bus_handle);
 
     // Métodos de controle
-    bool lock();
-    void unlock();
+    //bool lock();
+    //void unlock();
     
     // Atualização visual
     void atualizarDados(float pressao_psi, bool is_unit_psi);
+    
 };
+
+
 
 #endif // DISPLAY_HPP
