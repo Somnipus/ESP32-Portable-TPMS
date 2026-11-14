@@ -28,7 +28,7 @@ Designed with IoT and portability in mind, the system is powered by an onboard 1
 *   **Actuators/Inputs:** Piezo Buzzer for alarms and a Push-button for unit toggling.
 
 ### Software Stack
-*   **Framework:** ESP-IDF v5.4.3 (C/C++)
+*   **Framework:** ESP-IDF v5.3.5 (C/C++)
 *   **Graphics Engine:** LVGL (Light and Versatile Graphics Library) - utilized for rendering text, numbers, dynamic arrows, and shapes.
 *   **Architecture:** Modularized C code, utilizing FreeRTOS tasks and hardware interrupts (ISR) for debounce control.
 
@@ -57,7 +57,7 @@ Projetado com foco em IoT e portabilidade, o circuito utiliza um sistema de alim
 *   **Atuadores/Entradas:** Piezo Buzzer para alarmes sonoros e Botão físico para seleção de grandezas.
 
 ### Tecnologias Utilizadas
-*   **Framework:** ESP-IDF v5.4.3 (C/C++)
+*   **Framework:** ESP-IDF v5.3.5 (C/C++)
 *   **Motor Gráfico:** LVGL (Light and Versatile Graphics Library)
 *   **Arquitetura:** Código modularizado em C, com o uso de tasks do FreeRTOS e interrupções de hardware (ISR) para controle de debounce.
 
