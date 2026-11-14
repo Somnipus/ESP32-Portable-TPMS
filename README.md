@@ -1,7 +1,7 @@
 # ESP32 PTPMS - Portable Tire Pressure Monitoring System
 *Aferidor de Pressão para Pneus Portátil*
 
-[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.4.3-red.svg)](https://docs.espressif.com/projects/esp-idf/en/v5.4.3/esp32/)
+[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.3.5-red.svg)](https://docs.espressif.com/projects/esp-idf/en/v5.3.5/esp32/)
 [![LVGL](https://img.shields.io/badge/LVGL-8.x-blue.svg)](https://lvgl.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
