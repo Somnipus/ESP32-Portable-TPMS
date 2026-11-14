@@ -5,10 +5,10 @@
     "board/esp32-wrover-kit-3.3v.cfg"
   ],
   "idf.portWin": "COM3",
-  "idf.currentSetup": "F:\\esp\\v5.3.5\\esp-idf",
+  "idf.currentSetup": "D:\\esp\\.espressif\\v5.3.5\\esp-idf",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32"
   },
   "idf.flashType": "UART",
-  "idf.port": "COM4"
+  "idf.port": "COM3"
 }

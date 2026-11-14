@@ -60,12 +60,13 @@ void task_leitura_sensor(void *pvParameters) {
 void task_display(void *pvParameters) {
     esp_lcd_panel_handle_t panel = lcd_init();
     buf = lcd_config();
+    lcd_fill(panel, 0xFFFF, buf); // Limpa a tela com branco
     while (1) {
         char texto[32];
         snprintf(texto, sizeof(texto), "Pressao: %.2f PSI",
-         static_cast<double>(pressao_atual_psi));
-        lcd_draw_text(panel, 10, 10, texto, 0x0000, 0xFFFF, 1);
-        //lcd_fill(panel, 0xFFFF, buf); // Limpa a tela com branco
+            static_cast<double>(pressao_atual_psi));
+        
+        
         lcd_draw_text(panel, 10, 10, texto, 0x0000, 0xFFFF, 1);
         
         /*

@@ -21,6 +21,9 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
+#include "esp_timer.h"
+
+#include "lvgl.h"
 
 /* ------------------------- Seleção do controlador ------------------------- */
 #define LCD_CTRL_ILI9341 1   /* 1 = ILI9341 | 0 = ST7789 */
@@ -43,7 +46,7 @@
 /* Resolução lógica em paisagem (largura 320, altura 240) */
 #define LCD_H_RES       240
 #define LCD_V_RES       320
-#define LCD_DRAW_LINES  300          /* linhas por transferência DMA */
+#define LCD_DRAW_LINES  50         /* linhas por transferência DMA */
 
 static const char *TAG = "lcd";
 
@@ -271,9 +274,42 @@ uint16_t *lcd_config(){
 
 }
 
+// Seção do LVGL
 
+void lvgl_config(){
+    lv_init();
+}
 
+static lv_obj_t *cartao_lvgl_display(lv_obj_t *parent, int32_t x, int32_t y, int32_t width, int32_t height){
+    lv_obj_t *cartao = lv_obj_create(parent);
+    lv_obj_set_pos(cartao, x, y);
+    lv_obj_set_size(cartao, width, height);
+    lv_obj_set_style_bg_color(cartao, lv_color_hex(0xA0A0A), 0);
+    lv_obj_set_style_bg_opa(cartao, LV_OPA_COVER, 0);
+    lv_obj_set_style_border_color(cartao, lv_color_hex(0xFF8B00), 0);
+    lv_obj_set_style_border_width(cartao, 1, 0);
+    lv_obj_set_style_radius(cartao, 12, 0);
+    lv_obj_set_style_pad_all(cartao, 1, 0);
+    lv_obj_set_scrollable(cartao, false);
+    return cartao;
+}
 
+static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
+{
+    lv_display_t *disp = (lv_display_t *)user_ctx;
+    if (disp == NULL) {
+        ESP_LOGE(TAG, "Callback de conclusão do LCD recebeu display nulo");
+        return false;
+    }
+
+    lv_display_flush_ready(disp);
+    return false;
+}
+
+static uint32_t lvgl_tick_cb(void)
+{
+    return (uint32_t)(esp_timer_get_time() / 1000);
+}
 
 
 
