@@ -56,6 +56,16 @@ static lv_display_t *disp;
 
 lv_obj_t *screen;
 
+extern volatile float pressao_atual_psi;
+extern volatile float temperatura_atual_c;
+
+typedef struct{
+    lv_obj_t *pressao_psi;
+    lv_obj_t *temperatura;
+} dados_ui_t;
+
+dados_ui_t dados_ui;
+
 
 
 static lv_obj_t *cartao_lvgl_display(lv_obj_t *parent, int32_t x, int32_t y, int32_t width, int32_t height){
@@ -71,6 +81,17 @@ static lv_obj_t *cartao_lvgl_display(lv_obj_t *parent, int32_t x, int32_t y, int
     lv_obj_set_scrollable(cartao, false);
     return cartao;
 }
+
+static lv_obj_t *criar_label_lvgl(lv_obj_t *parent, const char *text, int32_t x, int32_t y,
+                                        const lv_font_t *font, uint32_t color)
+{
+    lv_obj_t *label = lv_label_create(parent);
+    lv_label_set_text(label, text);
+    lv_obj_set_pos(label, x, y);
+    lv_obj_set_style_text_font(label, font, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(color), 0);
+    return label;
+} 
 
 static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
 {
@@ -100,6 +121,21 @@ static void lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px
     }
 }
 
+static void atualizar_dados(lv_timer_t *timer)
+{
+    (void)timer;
+
+    char text[16];
+
+
+    snprintf(text, sizeof(text), "%.2f PSI",
+             pressao_atual_psi);
+    lv_label_set_text(dados_ui.pressao_psi, text);
+    snprintf(text, sizeof(text), "%.2f C",
+             temperatura_atual_c);
+    lv_label_set_text(dados_ui.temperatura, text);
+}
+
 static uint32_t lvgl_tick_cb(void)
 {
     return (uint32_t)(esp_timer_get_time() / 1000);
@@ -124,7 +160,16 @@ void lvgl_config(){
     lv_obj_set_style_bg_color(screen, lv_color_hex(0x0000), 0);
     lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, 0);
 
-    lv_obj_t *main_card = cartao_lvgl_display(screen,10, 10, 230, 310);
+    lv_timer_t *timer_dados = lv_timer_create(atualizar_dados, 500, NULL);
+
+    lv_obj_t *main_card = cartao_lvgl_display(screen,0, 0, 239, 319);
+    lv_obj_t *label_titulo = criar_label_lvgl(screen, "Aferidor de pressao", 5, 5, LV_FONT_DEFAULT, 0xFFD700);
+    lv_obj_t *label_p_psi = criar_label_lvgl(screen, "Pressao em PSI:", 5, 35, LV_FONT_DEFAULT, 0xFFD700);
+    dados_ui.pressao_psi = criar_label_lvgl(screen, "--.-", 150, 35, LV_FONT_DEFAULT, 0xFFD700);
+    lv_obj_t *label_temperatura_c = criar_label_lvgl(screen, "Temperatura:", 5, 55, LV_FONT_DEFAULT, 0xFFD700);
+    dados_ui.temperatura = criar_label_lvgl(screen, "--.-", 150, 55, LV_FONT_DEFAULT, 0xFFD700);
+    atualizar_dados(timer_dados);
+
 }
 
 void desenhar_tela_lvgl(){
