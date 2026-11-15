@@ -26,6 +26,9 @@ void lcd_fill(esp_lcd_panel_handle_t panel, uint16_t color, uint16_t *buf);
 uint16_t *lcd_config();
 void lcd_draw_text(esp_lcd_panel_handle_t panel, int x, int y, const char *str,
                           uint16_t fg, uint16_t bg, int scale);
+
+void lvgl_config();
+void desenhar_tela_lvgl();
 class DisplayOLED {
 private:
     // Ponteiros LVGL (presets)

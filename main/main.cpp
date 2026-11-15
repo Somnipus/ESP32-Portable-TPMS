@@ -58,10 +58,13 @@ void task_leitura_sensor(void *pvParameters) {
 
 // ---------------- THREAD 2: INTERFACE GRÁFICA ----------------
 void task_display(void *pvParameters) {
+    lvgl_config();
     esp_lcd_panel_handle_t panel = lcd_init();
     buf = lcd_config();
-    lcd_fill(panel, 0xFFFF, buf); // Limpa a tela com branco
+    //lcd_fill(panel, 0xFFFF, buf); // Limpa a tela com branco
     while (1) {
+        desenhar_tela_lvgl();
+        /*
         char texto[32];
         snprintf(texto, sizeof(texto), "Pressao: %.2f PSI",
             static_cast<double>(pressao_atual_psi));
@@ -69,7 +72,7 @@ void task_display(void *pvParameters) {
         
         lcd_draw_text(panel, 10, 10, texto, 0x0000, 0xFFFF, 1);
         
-        /*
+        
         // Solicita acesso exclusivo ao I2C
         if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE) {
             bool is_psi = hw->get_is_unit_psi(); // Consulta o estado do botão

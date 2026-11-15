@@ -44,13 +44,95 @@
 #define LCD_PIXEL_CLK_HZ (40 * 1000 * 1000)
 
 /* Resolução lógica em paisagem (largura 320, altura 240) */
-#define LCD_H_RES       240
-#define LCD_V_RES       320
+#define LCD_H_RES       320
+#define LCD_V_RES       240
 #define LCD_DRAW_LINES  50         /* linhas por transferência DMA */
 
 static const char *TAG = "lcd";
 
 static SemaphoreHandle_t s_flush_done;
+
+static lv_display_t *disp;
+
+lv_obj_t *screen;
+
+
+
+static lv_obj_t *cartao_lvgl_display(lv_obj_t *parent, int32_t x, int32_t y, int32_t width, int32_t height){
+    lv_obj_t *cartao = lv_obj_create(parent);
+    lv_obj_set_pos(cartao, x, y);
+    lv_obj_set_size(cartao, width, height);
+    lv_obj_set_style_bg_color(cartao, lv_color_hex(0x0A0A0A), 0);
+    lv_obj_set_style_bg_opa(cartao, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_border_color(cartao, lv_color_hex(0xFFD700), 0);
+    lv_obj_set_style_border_width(cartao, 3, 0);
+    lv_obj_set_style_radius(cartao, 1, 0); 
+    lv_obj_set_style_pad_all(cartao, 1, 0);
+    lv_obj_set_scrollable(cartao, false);
+    return cartao;
+}
+
+static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
+{
+    lv_display_t *disp = (lv_display_t *)user_ctx;
+    if (disp == NULL) {
+        ESP_LOGE(TAG, "Callback de conclusão do LCD recebeu display nulo");
+        return false;
+    }
+
+    lv_display_flush_ready(disp);
+    return false;
+}
+
+static void lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
+{
+    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) lv_display_get_user_data(disp);
+    int offsetx1 = area->x1;
+    int offsetx2 = area->x2;
+    int offsety1 = area->y1;
+    int offsety2 = area->y2;
+
+    // Transfere os pixels para a área do display
+    esp_err_t err = esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, px_map);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Falha ao enviar pixels ao display: %s", esp_err_to_name(err));
+        lv_display_flush_ready(disp);
+    }
+}
+
+static uint32_t lvgl_tick_cb(void)
+{
+    return (uint32_t)(esp_timer_get_time() / 1000);
+}
+
+void lvgl_config(){
+    lv_init();
+    lv_tick_set_cb(lvgl_tick_cb);
+    disp = lv_display_create(LCD_V_RES, LCD_H_RES);
+    assert(disp != NULL);
+    lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565_SWAPPED);
+    lv_display_set_flush_cb(disp, lvgl_flush_cb);
+    size_t buf_size = LCD_H_RES * 40 * sizeof(uint16_t);
+    void *buf1 = heap_caps_malloc(buf_size, MALLOC_CAP_DMA);
+    void *buf2 = heap_caps_malloc(buf_size, MALLOC_CAP_DMA);
+    assert(buf1 != NULL);
+    assert(buf2 != NULL);
+
+    lv_display_set_buffers(disp, buf1, buf2, buf_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
+
+    screen = lv_screen_active();
+    lv_obj_set_style_bg_color(screen, lv_color_hex(0x0000), 0);
+    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, 0);
+
+    lv_obj_t *main_card = cartao_lvgl_display(screen,10, 10, 230, 310);
+}
+
+void desenhar_tela_lvgl(){
+    uint32_t temp_ate_proxima = lv_timer_handler();
+    if (temp_ate_proxima < 5){
+        temp_ate_proxima = 5;
+    }
+}
 
 /* Chamada (ISR) quando a transferência de cor termina */
 static bool IRAM_ATTR on_color_trans_done(esp_lcd_panel_io_handle_t io,
@@ -85,7 +167,8 @@ esp_lcd_panel_handle_t lcd_init(void)
         .spi_mode = 0,
         .pclk_hz = LCD_PIXEL_CLK_HZ,
         .trans_queue_depth = 10,
-        .on_color_trans_done = on_color_trans_done,
+        .on_color_trans_done = notify_lvgl_flush_ready,
+        .user_ctx = disp,
         .lcd_cmd_bits = 8,
         .lcd_param_bits = 8, 
     };
@@ -96,7 +179,7 @@ esp_lcd_panel_handle_t lcd_init(void)
     esp_lcd_panel_handle_t panel = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = LCD_PIN_RST,
-        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,  /* se cores trocadas: use _RGB */
+        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,  /* se cores trocadas: use _RGB */
         .bits_per_pixel = 16,
     };
 #if LCD_CTRL_ILI9341
@@ -107,6 +190,7 @@ esp_lcd_panel_handle_t lcd_init(void)
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel));
+    lv_display_set_user_data(disp, panel);
 
 #if !LCD_CTRL_ILI9341
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel, true));  /* ST7789 geralmente precisa */
@@ -274,42 +358,9 @@ uint16_t *lcd_config(){
 
 }
 
-// Seção do LVGL
 
-void lvgl_config(){
-    lv_init();
-}
 
-static lv_obj_t *cartao_lvgl_display(lv_obj_t *parent, int32_t x, int32_t y, int32_t width, int32_t height){
-    lv_obj_t *cartao = lv_obj_create(parent);
-    lv_obj_set_pos(cartao, x, y);
-    lv_obj_set_size(cartao, width, height);
-    lv_obj_set_style_bg_color(cartao, lv_color_hex(0xA0A0A), 0);
-    lv_obj_set_style_bg_opa(cartao, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_color(cartao, lv_color_hex(0xFF8B00), 0);
-    lv_obj_set_style_border_width(cartao, 1, 0);
-    lv_obj_set_style_radius(cartao, 12, 0);
-    lv_obj_set_style_pad_all(cartao, 1, 0);
-    lv_obj_set_scrollable(cartao, false);
-    return cartao;
-}
 
-static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
-{
-    lv_display_t *disp = (lv_display_t *)user_ctx;
-    if (disp == NULL) {
-        ESP_LOGE(TAG, "Callback de conclusão do LCD recebeu display nulo");
-        return false;
-    }
-
-    lv_display_flush_ready(disp);
-    return false;
-}
-
-static uint32_t lvgl_tick_cb(void)
-{
-    return (uint32_t)(esp_timer_get_time() / 1000);
-}
 
 
 
