@@ -7,7 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cmath>
 
+#include "display.hpp"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -61,7 +63,12 @@ extern volatile float temperatura_atual_c;
 
 typedef struct{
     lv_obj_t *pressao_psi;
+    lv_obj_t *pressao_bar;
     lv_obj_t *temperatura;
+    lv_obj_t *temperatura_f;
+    lv_obj_t *cartao_status_pressao;
+    lv_obj_t *status_pressao;
+    lv_obj_t *tempo_ligado;
 } dados_ui_t;
 
 dados_ui_t dados_ui;
@@ -76,7 +83,7 @@ static lv_obj_t *cartao_lvgl_display(lv_obj_t *parent, int32_t x, int32_t y, int
     lv_obj_set_style_bg_opa(cartao, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_color(cartao, lv_color_hex(0xFFD700), 0);
     lv_obj_set_style_border_width(cartao, 3, 0);
-    lv_obj_set_style_radius(cartao, 1, 0); 
+    lv_obj_set_style_radius(cartao, 7, 0); 
     lv_obj_set_style_pad_all(cartao, 1, 0);
     lv_obj_set_scrollable(cartao, false);
     return cartao;
@@ -126,14 +133,54 @@ static void atualizar_dados(lv_timer_t *timer)
     (void)timer;
 
     char text[16];
-
+    const float pressao_psi = pressao_atual_psi;
 
     snprintf(text, sizeof(text), "%.2f PSI",
-             pressao_atual_psi);
+             pressao_psi);
     lv_label_set_text(dados_ui.pressao_psi, text);
+    snprintf(text, sizeof(text), "%.2f bar",
+             pressao_psi * PSI_PARA_BAR_FATOR);
+    lv_label_set_text(dados_ui.pressao_bar, text);
+    float temperatura_f = temperatura_atual_c * 9.0f / 5.0f + 32.0f;
+    snprintf(text, sizeof(text), "%.2f F",
+             temperatura_f);
+    lv_label_set_text(dados_ui.temperatura, text);
     snprintf(text, sizeof(text), "%.2f C",
              temperatura_atual_c);
-    lv_label_set_text(dados_ui.temperatura, text);
+    lv_label_set_text(dados_ui.temperatura_f, text);
+
+    const char *status;
+    uint32_t status_color;
+    if (!std::isfinite(pressao_psi)) {
+        status = "PRESSAO INDISPONIVEL";
+        status_color = 0xAAAAAA;
+    } else if (pressao_psi < PRESSAO_MINIMA_PSI) {
+        status = "PRESSAO BAIXA";
+        status_color = 0xFFD700;
+    } else if (pressao_psi > PRESSAO_MAXIMA_PSI) {
+        status = "PRESSAO ALTA";
+        status_color = 0xFF3333;
+    } else {
+        status = "PRESSAO OK";
+        status_color = 0x00C853;
+    }
+
+    lv_label_set_text(dados_ui.status_pressao, status);
+    lv_obj_set_style_text_color(dados_ui.status_pressao, lv_color_hex(status_color), 0);
+    lv_obj_set_style_border_color(dados_ui.cartao_status_pressao, lv_color_hex(status_color), 0);
+
+    const uint64_t uptime_seconds = (uint64_t)(esp_timer_get_time() / 1000000);
+    const uint64_t days = uptime_seconds / 86400;
+    const uint64_t hours = (uptime_seconds / 3600) % 24;
+    const uint64_t minutes = (uptime_seconds / 60) % 60;
+    const uint64_t seconds = uptime_seconds % 60;
+    char uptime_text[40];
+    snprintf(uptime_text, sizeof(uptime_text), "Ligado: %llud %02llu:%02llu:%02llu",
+             (unsigned long long)days,
+             (unsigned long long)hours,
+             (unsigned long long)minutes,
+             (unsigned long long)seconds);
+    lv_label_set_text(dados_ui.tempo_ligado, uptime_text);
 }
 
 static uint32_t lvgl_tick_cb(void)
@@ -164,10 +211,25 @@ void lvgl_config(){
 
     lv_obj_t *main_card = cartao_lvgl_display(screen,0, 0, 239, 319);
     lv_obj_t *label_titulo = criar_label_lvgl(screen, "Aferidor de pressao", 5, 5, LV_FONT_DEFAULT, 0xFFD700);
-    lv_obj_t *label_p_psi = criar_label_lvgl(screen, "Pressao em PSI:", 5, 35, LV_FONT_DEFAULT, 0xFFD700);
+    lv_obj_t *pressao_card = cartao_lvgl_display(screen,5, 30, 225, 40);
+    lv_obj_t *label_p_psi = criar_label_lvgl(screen, "Pressao em PSI:", 10, 35, LV_FONT_DEFAULT, 0xFFD700);
     dados_ui.pressao_psi = criar_label_lvgl(screen, "--.-", 150, 35, LV_FONT_DEFAULT, 0xFFD700);
-    lv_obj_t *label_temperatura_c = criar_label_lvgl(screen, "Temperatura:", 5, 55, LV_FONT_DEFAULT, 0xFFD700);
-    dados_ui.temperatura = criar_label_lvgl(screen, "--.-", 150, 55, LV_FONT_DEFAULT, 0xFFD700);
+    cartao_lvgl_display(screen,5, 71, 225, 40);
+    criar_label_lvgl(screen, "Pressao em bar:", 10, 76, LV_FONT_DEFAULT, 0xFFD700);
+    dados_ui.pressao_bar = criar_label_lvgl(screen, "--.-", 150, 76, LV_FONT_DEFAULT, 0xFFD700);
+    lv_obj_t *temp_card = cartao_lvgl_display(screen,5, 112, 225, 70);
+    lv_obj_t *label_temperatura_c = criar_label_lvgl(screen, "Temperatura C:", 10, 117, LV_FONT_DEFAULT, 0xFFD700);
+    dados_ui.temperatura = criar_label_lvgl(screen, "--.-", 150, 117, LV_FONT_DEFAULT, 0xFFD700);
+    lv_obj_t *label_temperatura_f = criar_label_lvgl(screen, "Temperatura F:", 10, 137, LV_FONT_DEFAULT, 0xFFD700);
+    dados_ui.temperatura_f = criar_label_lvgl(screen, "--.-", 150, 137, LV_FONT_DEFAULT, 0xFFD700);
+    dados_ui.cartao_status_pressao = cartao_lvgl_display(screen, 5, 190, 225, 48);
+    dados_ui.status_pressao = criar_label_lvgl(
+        dados_ui.cartao_status_pressao, "PRESSAO --", 0, 0, LV_FONT_DEFAULT, 0xFFD700);
+    lv_obj_center(dados_ui.status_pressao);
+    dados_ui.tempo_ligado = criar_label_lvgl(
+        screen, "Ligado: 0d 00:00:00", 5, 0, LV_FONT_DEFAULT, 0xAAAAAA);
+    lv_obj_set_style_transform_scale(dados_ui.tempo_ligado, 205, 0);
+    lv_obj_align(dados_ui.tempo_ligado, LV_ALIGN_BOTTOM_LEFT, 5, -4);
     atualizar_dados(timer_dados);
 
 }

@@ -13,7 +13,7 @@
 // Módulos da aplicação
 #include "hardware.hpp"
 #include "smp3011.hpp"
-//#include "bmp280.hpp"
+#include "bmp280.hpp"
 #include "display.hpp"
 
 #define I2C_PORT_NUM           0
@@ -28,8 +28,8 @@ uint16_t *buf;
 // Instâncias dos Objetos
 Hardware* hw;
 SMP3011* sensor;
-//BMP280* ambiente;
-//DisplayOLED* display;
+BMP280* ambiente;
+
 
 // Mutex para proteger o barramento I2C
 SemaphoreHandle_t i2c_mutex;
@@ -44,7 +44,7 @@ void task_leitura_sensor(void *pvParameters) {
         // Solicita acesso exclusivo ao I2C uma única vez por ciclo
         if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE) {
             pressao_atual_psi = sensor->ler_pressao_psi();
-            //temperatura_atual_c = ambiente->ler_temperatura_celsius();
+            temperatura_atual_c = ambiente->ler_temperatura_celsius();
             xSemaphoreGive(i2c_mutex); // Libera o barramento
         }
         
@@ -64,24 +64,7 @@ void task_display(void *pvParameters) {
     //lcd_fill(panel, 0xFFFF, buf); // Limpa a tela com branco
     while (1) {
         desenhar_tela_lvgl();
-        /*
-        char texto[32];
-        snprintf(texto, sizeof(texto), "Pressao: %.2f PSI",
-            static_cast<double>(pressao_atual_psi));
-        
-        
-        lcd_draw_text(panel, 10, 10, texto, 0x0000, 0xFFFF, 1);
-        
-        
-        // Solicita acesso exclusivo ao I2C
-        if (xSemaphoreTake(i2c_mutex, portMAX_DELAY) == pdTRUE) {
-            bool is_psi = hw->get_is_unit_psi(); // Consulta o estado do botão
-            display->atualizarDados(pressao_atual_psi, is_psi);
-            xSemaphoreGive(i2c_mutex); // Libera o barramento
-        }
-        */
-        
-        vTaskDelay(pdMS_TO_TICKS(100)); // Atualiza UI a cada 50ms para fluidez
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 
@@ -111,10 +94,10 @@ extern "C" void app_main(void) {
     hw = new Hardware();
     hw->inicializar();
     sensor = new SMP3011(i2c_bus_handle);
-    //display = new DisplayOLED(i2c_bus_handle);
+
     // Instanciação e configuração do sensor de temperatura BMP280
-    //ambiente = new BMP280(i2c_bus_handle);
-    //ambiente->inicializar();
+    ambiente = new BMP280(i2c_bus_handle);
+    ambiente->inicializar();
 
     
 

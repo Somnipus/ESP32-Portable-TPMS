@@ -12,7 +12,15 @@
 
 class BMP280 {
 private:
+    struct calibracao_temperatura_t {
+        uint16_t T1 = 0;
+        int16_t T2 = 0;
+        int16_t T3 = 0;
+    };
+
     i2c_master_dev_handle_t bmp280_handle;
+    calibracao_temperatura_t calibracao;
+    bool calibracao_carregada = false;
 
 public:
     // Construtor
