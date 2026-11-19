@@ -142,11 +142,11 @@ static void atualizar_dados(lv_timer_t *timer)
              pressao_psi * PSI_PARA_BAR_FATOR);
     lv_label_set_text(dados_ui.pressao_bar, text);
     float temperatura_f = temperatura_atual_c * 9.0f / 5.0f + 32.0f;
-    snprintf(text, sizeof(text), "%.2f F",
-             temperatura_f);
-    lv_label_set_text(dados_ui.temperatura, text);
     snprintf(text, sizeof(text), "%.2f C",
              temperatura_atual_c);
+    lv_label_set_text(dados_ui.temperatura, text);
+    snprintf(text, sizeof(text), "%.2f F",
+             temperatura_f);
     lv_label_set_text(dados_ui.temperatura_f, text);
 
     const char *status;
