@@ -1,2 +1,3 @@
-idf_component_register(SRCS "main.c" "hardware.c" "smp3011.c" "display.c"
-                    INCLUDE_DIRS ".")
+idf_component_register(SRCS "bmp280.cpp" "main.cpp" "hardware.cpp" "smp3011.cpp" "display.cpp"
+                    INCLUDE_DIRS "."
+                    REQUIRES esp_lcd esp_timer lvgl)
