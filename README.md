@@ -35,8 +35,6 @@ Designed for portability and real-time responsiveness, the firmware is structure
 For an in-depth analysis of our methodology, sensor calculations, pinout, and circuit assembly, please refer to our official technical report:
 * [Technical Report - PTPMS (English)](docs/Technical_Report_PTPMS.pdf)
 
----
-
 ## 🇧🇷 Versão em Português
 
 ### Sobre o Projeto
@@ -61,6 +59,12 @@ Refatorado para C++ Orientado a Objetos com FreeRTOS e proteção do barramento 
 ### 📄 Documentação Completa
 Para uma análise detalhada da metodologia, cálculos dos sensores, mapeamento de pinos e montagem do circuito, consulte o relatório técnico oficial:
 * [Relatório Técnico - PTPMS (Português)](docs/Relatorio_Tecnico_PTPMS.pdf)
+
+## 🎥 Project Demonstration
+
+Watch the PTPMS prototype in operation:
+
+[![PTPMS Demonstration](https://img.youtube.com/vi/Xm5D8zHhmnY/maxresdefault.jpg)](https://youtube.com/shorts/Xm5D8zHhmnY)
 
 ---
 
