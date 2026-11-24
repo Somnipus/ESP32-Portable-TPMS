@@ -10,7 +10,7 @@
 
 static const char *TAG = "SMP3011";
 
-// Implementação do Construtor[cite: 19]
+// Implementação do Construtor
 SMP3011::SMP3011(i2c_master_bus_handle_t bus_handle) {
     this->offset_zero = 0.0f; // Inicializa a tara em zero
     this->calibrado = false; // Temp, talvez tirar

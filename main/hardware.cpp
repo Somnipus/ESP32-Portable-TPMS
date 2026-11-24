@@ -28,7 +28,7 @@ void IRAM_ATTR Hardware::btn_isr_handler(void* arg) {
 }
 
 void Hardware::inicializar() {
-    ESP_LOGI(TAG, "Configurando GPIOs de Controlo...");
+    ESP_LOGI(TAG, "Configurando GPIOs de Controle...");
     
     // 1. Configuração do Buzzer
     gpio_reset_pin(BUZZER_PIN); 

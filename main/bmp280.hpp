@@ -8,7 +8,7 @@
 
 #include "driver/i2c_master.h"
 
-#define BMP280_I2C_ADDR 0x76 // TEMPORARIO, coloquei 0x76 mas pode ser 0x78 ou outro
+#define BMP280_I2C_ADDR 0x76
 
 class BMP280 {
 private:
