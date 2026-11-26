@@ -1,6 +1,6 @@
 /**
  * @file hardware.hpp
- * @brief Definições para controle de periféricos básicos (GPIOs)
+ * @brief Definitions for basic peripheral control (GPIOs)
  */
 
 #ifndef HARDWARE_HPP
@@ -21,7 +21,7 @@ private:
     static void IRAM_ATTR btn_isr_handler(void* arg);
 
 public:
-    // Construtor
+    // Constructor
     Hardware();
 
     void inicializar();

@@ -1,8 +1,8 @@
 /*
- * Boilerplate ESP-IDF 5.x - display SPI 320x240 (landscape) no ESP32
- * Pinos: SCK=14, MOSI=13, CS=27, RST=25, DC=LCD_DC_GPIO (AJUSTE!), BL direto em 3.3V
+ * Boilerplate ESP-IDF 5.x - display SPI 320x240 (landscape) on ESP32
+ * Pins: SCK=14, MOSI=13, CS=27, RST=25, DC=LCD_DC_GPIO, BL in 3.3V
  *
- * Controlador: ILI9341 (padrão) ou ST7789 -> altere LCD_CTRL_ILI9341 abaixo.
+ * Controller: ILI9341 (default) or ST7789 -> change LCD_CTRL_ILI9341 below.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,28 +27,28 @@
 
 #include "lvgl.h"
 
-/* ------------------------- Seleção do controlador ------------------------- */
+/* ------------------------- Controller selection ------------------------- */
 #define LCD_CTRL_ILI9341 1   /* 1 = ILI9341 | 0 = ST7789 */
 
 #if LCD_CTRL_ILI9341
 #include "esp_lcd_ili9341.h"
 #endif
 
-/* ------------------------------ Configuração ------------------------------ */
-#define LCD_HOST        SPI2_HOST       /* HSPI: pinos 14/13 são os nativos (IOMUX) */
+/* ------------------------------ Configuration ------------------------------ */
+#define LCD_HOST        SPI2_HOST       /* HSPI: pins 14/13 are native (IOMUX) */
 #define LCD_PIN_SCK     14
 #define LCD_PIN_MOSI    13
-#define LCD_PIN_MISO    (-1)            /* não usado */
+#define LCD_PIN_MISO    (-1)            /* not used */
 #define LCD_PIN_CS      27
 #define LCD_PIN_RST     25
 #define LCD_PIN_DC      26
 
 #define LCD_PIXEL_CLK_HZ (40 * 1000 * 1000)
 
-/* (largura 320, altura 240) */
+/* (width 320, height 240) */
 #define LCD_H_RES       320
 #define LCD_V_RES       240
-#define LCD_DRAW_LINES  50         /* linhas por transferência DMA */
+#define LCD_DRAW_LINES  50         /* lines per DMA transfer */
 
 static const char *TAG = "lcd";
 
@@ -104,7 +104,7 @@ static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_
 {
     lv_display_t *disp = (lv_display_t *)user_ctx;
     if (disp == NULL) {
-        ESP_LOGE(TAG, "Callback de conclusão do LCD recebeu display nulo");
+        ESP_LOGE(TAG, "Callback de conclusão do LCD recebeu display nulo"); // LCD flush callback received null display
         return false;
     }
 
@@ -120,10 +120,10 @@ static void lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px
     int offsety1 = area->y1;
     int offsety2 = area->y2;
 
-    // Transfere os pixels para a área do display
+    // Transfer the pixels to the display area
     esp_err_t err = esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, px_map);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Falha ao enviar pixels ao display: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Falha ao enviar pixels ao display: %s", esp_err_to_name(err)); // Failed to send pixels to display
         lv_display_flush_ready(disp);
     }
 }
@@ -152,16 +152,16 @@ static void atualizar_dados(lv_timer_t *timer)
     const char *status;
     uint32_t status_color;
     if (!std::isfinite(pressao_psi)) {
-        status = "PRESSAO INDISPONIVEL";
+        status = "PRESSAO INDISPONIVEL"; // Pressure Unavailable
         status_color = 0xAAAAAA;
     } else if (pressao_psi < PRESSAO_MINIMA_PSI) {
-        status = "PRESSAO BAIXA";
+        status = "PRESSAO BAIXA"; // Pressure Low
         status_color = 0xFFD700;
     } else if (pressao_psi > PRESSAO_MAXIMA_PSI) {
-        status = "PRESSAO ALTA";
+        status = "PRESSAO ALTA"; // Pressure High
         status_color = 0xFF3333;
     } else {
-        status = "PRESSAO OK";
+        status = "PRESSAO OK"; // Pressure OK
         status_color = 0x00C853;
     }
 
@@ -175,7 +175,7 @@ static void atualizar_dados(lv_timer_t *timer)
     const uint64_t minutes = (uptime_seconds / 60) % 60;
     const uint64_t seconds = uptime_seconds % 60;
     char uptime_text[40];
-    snprintf(uptime_text, sizeof(uptime_text), "Ligado: %llud %02llu:%02llu:%02llu",
+    snprintf(uptime_text, sizeof(uptime_text), "Ligado: %llud %02llu:%02llu:%02llu", // Uptime: %llud %02llu:%02llu:%02llu
              (unsigned long long)days,
              (unsigned long long)hours,
              (unsigned long long)minutes,
@@ -210,12 +210,12 @@ void lvgl_config(){
     lv_timer_t *timer_dados = lv_timer_create(atualizar_dados, 500, NULL);
 
     lv_obj_t *main_card = cartao_lvgl_display(screen,0, 0, 239, 319);
-    lv_obj_t *label_titulo = criar_label_lvgl(screen, "Aferidor de pressao", 5, 5, LV_FONT_DEFAULT, 0xFFD700);
+    lv_obj_t *label_titulo = criar_label_lvgl(screen, "Aferidor de pressao", 5, 5, LV_FONT_DEFAULT, 0xFFD700); // Pressure Gauge
     lv_obj_t *pressao_card = cartao_lvgl_display(screen,5, 30, 225, 40);
-    lv_obj_t *label_p_psi = criar_label_lvgl(screen, "Pressao em PSI:", 10, 35, LV_FONT_DEFAULT, 0xFFD700);
+    lv_obj_t *label_p_psi = criar_label_lvgl(screen, "Pressao em PSI:", 10, 35, LV_FONT_DEFAULT, 0xFFD700); // Pressure in PSI
     dados_ui.pressao_psi = criar_label_lvgl(screen, "--.-", 150, 35, LV_FONT_DEFAULT, 0xFFD700);
     cartao_lvgl_display(screen,5, 71, 225, 40);
-    criar_label_lvgl(screen, "Pressao em bar:", 10, 76, LV_FONT_DEFAULT, 0xFFD700);
+    criar_label_lvgl(screen, "Pressao em bar:", 10, 76, LV_FONT_DEFAULT, 0xFFD700); // Pressure in bar
     dados_ui.pressao_bar = criar_label_lvgl(screen, "--.-", 150, 76, LV_FONT_DEFAULT, 0xFFD700);
     lv_obj_t *temp_card = cartao_lvgl_display(screen,5, 112, 225, 70);
     lv_obj_t *label_temperatura_c = criar_label_lvgl(screen, "Temperatura C:", 10, 117, LV_FONT_DEFAULT, 0xFFD700);
@@ -227,7 +227,7 @@ void lvgl_config(){
         dados_ui.cartao_status_pressao, "PRESSAO --", 0, 0, LV_FONT_DEFAULT, 0xFFD700);
     lv_obj_center(dados_ui.status_pressao);
     dados_ui.tempo_ligado = criar_label_lvgl(
-        screen, "Ligado: 0d 00:00:00", 5, 0, LV_FONT_DEFAULT, 0xAAAAAA);
+        screen, "Ligado: 0d 00:00:00", 5, 0, LV_FONT_DEFAULT, 0xAAAAAA); // Uptime label
     lv_obj_set_style_transform_scale(dados_ui.tempo_ligado, 205, 0);
     lv_obj_align(dados_ui.tempo_ligado, LV_ALIGN_BOTTOM_LEFT, 5, -4);
     atualizar_dados(timer_dados);
@@ -241,7 +241,7 @@ void desenhar_tela_lvgl(){
     }
 }
 
-/* Chamada (ISR) quando a transferência de cor termina */
+/* Call (ISR) when the color transfer is done */
 static bool IRAM_ATTR on_color_trans_done(esp_lcd_panel_io_handle_t io,
                                           esp_lcd_panel_io_event_data_t *edata,
                                           void *user_ctx)
@@ -255,7 +255,7 @@ esp_lcd_panel_handle_t lcd_init(void)
 {
     s_flush_done = xSemaphoreCreateBinary();
 
-    /* 1) Barramento SPI */
+    /* 1) SPI Bus */
     spi_bus_config_t buscfg = {
         .mosi_io_num = LCD_PIN_MOSI,
         .miso_io_num = LCD_PIN_MISO,
@@ -282,11 +282,11 @@ esp_lcd_panel_handle_t lcd_init(void)
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_HOST,
                                              &io_config, &io_handle));
 
-    /* 3) Driver do painel */
+    /* 3) Panel driver*/
     esp_lcd_panel_handle_t panel = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = LCD_PIN_RST,
-        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,  /* se cores trocadas: use _RGB */
+        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,  /* If colors are swapped: use _RGB */
         .bits_per_pixel = 16,
     };
 #if LCD_CTRL_ILI9341
@@ -300,16 +300,16 @@ esp_lcd_panel_handle_t lcd_init(void)
     lv_display_set_user_data(disp, panel);
 
 #if !LCD_CTRL_ILI9341
-    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel, true));  /* ST7789 geralmente precisa */
+    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel, true));  /* ST7789 generally needs this */
 #endif
 
-    /* painel nativo é 240x320 (retrato) -> paisagem 320x240.
-    Se a imagem sair espelhada/invertida, ajustar flags do mirror. */
+    /* native panel is 240x320 (portrait) -> landscape 320x240.
+    If the image appears mirrored/inverted, adjust the mirror flags. */
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel, true));
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel, false, false));
 
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel, true));
-    ESP_LOGI(TAG, "Display inicializado (%dx%d)", LCD_H_RES, LCD_V_RES);
+    ESP_LOGI(TAG, "Display inicializado (%dx%d)", LCD_H_RES, LCD_V_RES); // Display initialized (%dx%d)
     return panel;
 }
 static const uint8_t font8x8[95][8] = {
@@ -409,8 +409,8 @@ static const uint8_t font8x8[95][8] = {
     {0x07,0x0C,0x0C,0x38,0x0C,0x0C,0x07,0x00}, /* } */
     {0x6E,0x3B,0x00,0x00,0x00,0x00,0x00,0x00}, /* ~ */
 };
- 
-/* Desenha uma string na posição (x, y) em pixels. scale = fator de ampliação (1..4+). */
+
+/* Draws a string at position (x, y) in pixels. scale = magnification factor (1..4+). */
 void lcd_draw_text(esp_lcd_panel_handle_t panel, int x, int y, const char *str,
                           uint16_t fg, uint16_t bg, int scale)
 {
@@ -442,7 +442,7 @@ void lcd_draw_text(esp_lcd_panel_handle_t panel, int x, int y, const char *str,
     free(buf);
 }
 
-/* Preenche a tela inteira com uma cor RGB565 */
+/* Fills the entire screen with an RGB565 color */
 void lcd_fill(esp_lcd_panel_handle_t panel, uint16_t color, uint16_t *buf)
 {
     for (size_t i = 0; i < LCD_H_RES * LCD_DRAW_LINES; i++) {
@@ -451,7 +451,7 @@ void lcd_fill(esp_lcd_panel_handle_t panel, uint16_t color, uint16_t *buf)
     for (int y = 0; y < LCD_V_RES; y += LCD_DRAW_LINES) {
         int y_end = (y + LCD_DRAW_LINES > LCD_V_RES) ? LCD_V_RES : y + LCD_DRAW_LINES;
         ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel, 0, y, LCD_H_RES, y_end, buf));
-        xSemaphoreTake(s_flush_done, portMAX_DELAY);  /* espera DMA antes de reutilizar buf */
+        xSemaphoreTake(s_flush_done, portMAX_DELAY);  /* waits for DMA before reusing buf */
     }
 }
 

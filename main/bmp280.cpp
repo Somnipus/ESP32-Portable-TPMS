@@ -1,6 +1,6 @@
 /**
  * @file bmp280.cpp
- * @brief Implementação da classe BMP280.
+ * @brief BMP280 class implementation.
  */
 
 #include "bmp280.hpp"
@@ -20,11 +20,11 @@ BMP280::BMP280(i2c_master_bus_handle_t bus_handle) {
     };
     
     ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_cfg, &this->bmp280_handle));
-    ESP_LOGI(TAG, "Sensor BMP280 adicionado ao barramento I2C com sucesso!");
+    ESP_LOGI(TAG, "Sensor BMP280 adicionado ao barramento I2C com sucesso!"); // BMP280 sensor added to the I2C bus successfully!
 }
 
 void BMP280::inicializar() {
-    uint8_t config_meas[2] = { 0xF4, 0x27 }; // Configurando o registrador de controle de medição (Ctrl_meas: endereço 0xF4)
+    uint8_t config_meas[2] = { 0xF4, 0x27 }; // Setting the register for measurement control (Ctrl_meas: address 0xF4)
     ESP_ERROR_CHECK(i2c_master_transmit(
         this->bmp280_handle, config_meas, sizeof(config_meas), -1));
 
@@ -39,17 +39,17 @@ void BMP280::inicializar() {
     ESP_ERROR_CHECK(this->calibracao.T1 == 0 ? ESP_ERR_INVALID_RESPONSE : ESP_OK);
     this->calibracao_carregada = true;
 
-    ESP_LOGI(TAG, "Calibracao temperatura T1=%u T2=%d T3=%d",
+    ESP_LOGI(TAG, "Calibracao temperatura T1=%u T2=%d T3=%d", // Temperature calibration T1=%u T2=%d T3=%d
              (unsigned)this->calibracao.T1,
              this->calibracao.T2,
              this->calibracao.T3);
-    ESP_LOGI(TAG, "BMP280 configurado em modo normal.");
+    ESP_LOGI(TAG, "BMP280 configurado em modo normal."); // BMP280 configured in normal mode.
 }
 
 float BMP280::ler_temperatura_celsius() {
     ESP_ERROR_CHECK(this->calibracao_carregada ? ESP_OK : ESP_ERR_INVALID_STATE);
 
-    uint8_t reg_addr = 0xFA; // Registrador dos dados brutos de temperatura
+    uint8_t reg_addr = 0xFA; // Raw temperature data register (0xFA)
     uint8_t buffer[3] = { 0 };
 
     ESP_ERROR_CHECK(i2c_master_transmit_receive(
@@ -59,7 +59,7 @@ float BMP280::ler_temperatura_celsius() {
                     ((int32_t)buffer[1] << 4) |
                     ((int32_t)buffer[2] >> 4);
     if (adc_T == 0x80000) {
-        ESP_LOGW(TAG, "ADC de temperatura invalido (0x80000)");
+        ESP_LOGW(TAG, "ADC de temperatura invalido (0x80000)"); // Invalid temperature ADC (0x80000)
         return std::numeric_limits<float>::quiet_NaN();
     }
 
@@ -72,10 +72,10 @@ float BMP280::ler_temperatura_celsius() {
     float temperatura = (float)((t_fine * 5 + 128) >> 8) / 100.0f;
 
     if (temperatura < -40.0f || temperatura > 85.0f) {
-        ESP_LOGW(TAG, "Leitura incorreta: %.2f", temperatura);
+        ESP_LOGW(TAG, "Leitura incorreta: %.2f", temperatura); // Incorrect reading: %.2f
         return std::numeric_limits<float>::quiet_NaN();
     }
 
-    ESP_LOGD(TAG, "ADC_T=%ld temperatura=%.2f C", (long)adc_T, temperatura);
+    ESP_LOGD(TAG, "ADC_T=%ld temperatura=%.2f C", (long)adc_T, temperatura); // ADC_T=%ld temperature=%.2f C
     return temperatura;
 }

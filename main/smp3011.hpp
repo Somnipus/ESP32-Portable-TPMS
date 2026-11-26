@@ -1,6 +1,6 @@
 /**
  * @file smp3011.hpp
- * @brief Bibliotéca para o sensor de pressão hidrostática SMP3011 via I2C.
+ * @brief Library for the SMP3011 hydrostatic pressure sensor via I2C.
  */
 
 #ifndef SMP3011_HPP
@@ -12,16 +12,16 @@
 
 class SMP3011 {
 private:
-    // Encapsulamento
+    // Encapsulation
     i2c_master_dev_handle_t smp3011_handle; 
     float offset_zero;
-    bool calibrado; // Temp, talvez tirar
+    bool calibrado; 
 
 public:
-    // Método Construtor
+    // Constructor
     SMP3011(i2c_master_bus_handle_t bus_handle);
 
-    // Método de leitura
+    // Reading Method
     float ler_pressao_psi();
 };
 

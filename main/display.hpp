@@ -1,6 +1,6 @@
 /**
  * @file display.hpp
- * @brief Módulo de interface gráfica para display LCD TFT ILI9341 com biblioteca LVGL.
+ * @brief Graphical interface module for ILI9341 TFT LCD display using the LVGL library.
  */
 
 #ifndef DISPLAY_HPP
@@ -13,7 +13,7 @@
 #define OLED_RST_PIN           GPIO_NUM_16
 #define I2C_CLOCK_SPEED_HZ     (400 * 1000) 
 
-// Limites de Pressao para a UI
+// Pressure limits for the UI
 #define PRESSAO_MINIMA_PSI     28.0f
 #define PRESSAO_MAXIMA_PSI     36.0f 
 #define PSI_PARA_BAR_FATOR     0.0689476f
@@ -28,19 +28,19 @@ void lvgl_config();
 void desenhar_tela_lvgl();
 class DisplayOLED {
 private:
-    // Ponteiros LVGL (presets)
+    // LVGL pointers (presets)
     lv_disp_t *tela_lvgl; 
-    lv_obj_t  *label_status; //< Estado da pressão (baixa, alta, boa)
-    lv_obj_t  *label_pressao; //< Preset numérico da pressão
-    lv_obj_t  *label_acao; //< Recomendação (Recalibrar ou OK)
-    lv_obj_t  *label_mode; //< Indicador de seleção de unidade (seta)
+    lv_obj_t  *label_status; //< Pressure status (low, high, good)
+    lv_obj_t  *label_pressao; //< Numeric preset for pressure
+    lv_obj_t  *label_acao; //< Recommendation (Recalibrate or OK)
+    lv_obj_t  *label_mode; //< Unit selection indicator (arrow)
     lv_obj_t  *btn_ui_psi;
     lv_obj_t  *btn_ui_bar;
 
 public:
-    // Atualização visual
+    // Visual update of the display based on pressure readings and unit selection
     void atualizarDados(float pressao_psi, bool is_unit_psi);
-    
+
 };
 
 
